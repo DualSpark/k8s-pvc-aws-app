@@ -1,5 +1,5 @@
-kind: ReplicationController
-apiVersion: v1
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: postgres-master
 spec:
@@ -17,7 +17,7 @@ spec:
             - name: transport
               containerPort: 5432
           volumeMounts:
-            - name: data-storage
+            - name: postgres-data-storage
               mountPath: /var/lib/postgresql/data
             - name: credentials
               mountPath: /etc/postgres-credentials
@@ -28,13 +28,6 @@ spec:
         - name: credentials
           secret:
             secretName: postgres-credentials
-volumeClaimTemplates:
-  - metadata:
-      name: data
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "default"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 20Gi
+        - name: postgres-data-storage
+          persistentVolumeClaim:
+            claimName: postgres-data-storage
